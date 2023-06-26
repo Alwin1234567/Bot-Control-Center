@@ -30,12 +30,12 @@ class Console:
         self.tokens = json.load(open("tokens.json"))
         self.client = client
         self.bots = self.config["Bots"]
+        self.console_msg = None
         
     
     async def event_on_ready(self):
         self.logger.info("bot is now online")
         self.logger.info("bot started with name: {} and id: {}".format(self.client.user.name, self.client.user.id))
-        print(self.client.guilds[0])
         self.console_channel = discord.utils.get(self.client.guilds[0].channels, name = "console")
         await self.create_console_msg()
     
@@ -47,6 +47,7 @@ class Console:
     
     async def command_stop(self, context):
         await self.remove_msg(context.message)
+        if self.console_msg != None: self.remove_msg(self.console_msg)
         self.stop_server()
         await asleep(5)
         sys.exit()
@@ -64,8 +65,16 @@ class Console:
         
     
     async def create_console_msg(self):
-        view = View()
+        view = MyView()
         for bot in self.bots.values():
             view.add_item(Button(style = discord.ButtonStyle.secondary, label = bot["name"]))#, emoji = bot["emoji"]))
-        await self.console_channel.send("button?", view = view)
+        self.console_msg = await self.console_channel.send("button?", view = view)
 
+
+class MyView(View):
+    def __init__(self):
+      super().__init__()
+      
+    @discord.ui.button
+    async def say_hello(interaction, button):
+        await interaction.response.send_message(button.label)
