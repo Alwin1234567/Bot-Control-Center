@@ -1,5 +1,6 @@
 import logging
 from os.path import exists
+from os import makedirs
 from datetime import date
 
 def setup_logger(name):
@@ -27,6 +28,8 @@ def setup_logger(name):
 def date_log():
 
     today = date.today().strftime("%Y_%m_%d")
+    makedirs("Logs/", exist_ok = True)
+    makedirs("Logs/Errors", exist_ok = True)
     if not exists("Logs/{}.log".format(today)):
         f = open("Logs/{}.log".format(today), "w")
         f.close()

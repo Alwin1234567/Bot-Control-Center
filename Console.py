@@ -1,23 +1,33 @@
 """
 Header
 """
-import discord
-import discord.ext.commands as dec
 import json
 import logging
 from logger import setup_logger
+from asyncio import sleep as asleep
+import sys
 """
 Body
 """
 
-client = dec.Bot(command_prefix = json.load(open("config.json"))["BOT_PREFIX"])
 
-@client.event
-async def on_ready():
-    logger.warning("bot is now online")
-    logger.info("bot started with name: {} and id: {}".format(client.user.name, client.user.id))
-
-setup_logger("main")
-logger = logging.getLogger("main")
-TOKEN = json.load(open("tokens.json"))["Eden"]
-client.run(TOKEN)
+class Console:
+    
+    
+    def __init__(self, client):
+        setup_logger("main")
+        Console.global_self = self
+        self.logger = logging.getLogger("main")
+        self.config = json.load(open("config.json"))
+        self.tokens = json.load(open("tokens.json"))
+        self.client = client
+        
+    
+    async def remove_msg(self, msg, delay = 0):
+        if delay > 0: asleep(delay)
+        await msg.delete()
+    
+    
+    async def command_stop(self, context):
+        await self.remove_msg(context.message)
+        sys.exit()

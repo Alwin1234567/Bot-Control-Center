@@ -1,3 +1,4 @@
 .spyproject
 tokens.json
 Logs/
+__pycache__
