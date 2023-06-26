@@ -47,7 +47,7 @@ class Console:
     
     async def command_stop(self, context):
         await self.remove_msg(context.message)
-        if self.console_msg != None: self.remove_msg(self.console_msg)
+        if self.console_msg != None: await self.remove_msg(self.console_msg)
         self.stop_server()
         await asleep(5)
         sys.exit()
@@ -65,16 +65,19 @@ class Console:
         
     
     async def create_console_msg(self):
-        view = MyView()
+        view = View()
         for bot in self.bots.values():
             view.add_item(Button(style = discord.ButtonStyle.secondary, label = bot["name"]))#, emoji = bot["emoji"]))
         self.console_msg = await self.console_channel.send("button?", view = view)
+        interaction = await self.client.wait_for("interaction")
+        print(interaction)
+        interaction.send_message(interaction.label)
 
 
 class MyView(View):
     def __init__(self):
       super().__init__()
       
-    @discord.ui.button
-    async def say_hello(interaction, button):
+    @discord.ui.button(style = discord.ButtonStyle.secondary)
+    async def respond(interaction, button):
         await interaction.response.send_message(button.label)
