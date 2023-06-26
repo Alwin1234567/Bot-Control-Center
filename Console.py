@@ -12,8 +12,6 @@ import discord
 """
 Body
 """
-
-
 class Console:
     instance = None
     
@@ -45,11 +43,13 @@ class Console:
         await msg.delete()
     
     
-    async def command_stop(self, context):
-        await self.remove_msg(context.message)
-        if self.console_msg != None: await self.remove_msg(self.console_msg)
+    async def command_stop(self, context = None):
+        if context != None: await self.remove_msg(context.message)
+        try:
+            if self.console_msg != None: await self.remove_msg(self.console_msg)
+        except: pass
         self.stop_server()
-        await asleep(5)
+        await asleep(1)
         sys.exit()
     
     def stop_server(self):
@@ -67,11 +67,19 @@ class Console:
     async def create_console_msg(self):
         view = View()
         for bot in self.bots.values():
-            view.add_item(Button(style = discord.ButtonStyle.secondary, label = bot["name"]))#, emoji = bot["emoji"]))
+            view.add_item(Button(style = discord.ButtonStyle.primary, label = bot["name"], custom_id = bot["name"]))#, emoji = bot["emoji"]))
+        view.add_item(Button(style = discord.ButtonStyle.danger, label = "stop", custom_id = "stop", emoji = "⛔"))
         self.console_msg = await self.console_channel.send("button?", view = view)
-        interaction = await self.client.wait_for("interaction")
-        print(interaction)
-        interaction.send_message(interaction.label)
+        while True:
+            interaction = await self.client.wait_for("interaction", check=lambda interaction: interaction.data["component_type"] == 2 and interaction.channel == self.console_channel)
+            await self.button_trigger(interaction.data["custom_id"])
+            await interaction.response.defer()
+
+    async def button_trigger(self, ID):
+        if ID == "stop":
+            await self.command_stop()
+            return
+        
 
 
 class MyView(View):
