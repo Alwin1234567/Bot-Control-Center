@@ -66,6 +66,6 @@ class Console:
     async def create_console_msg(self):
         view = View()
         for bot in self.bots.values():
-            view.add_item(Button(style = discord.ButtonStyle.secondary, label = bot["name"], emoji = bot["emoji"]))
+            view.add_item(Button(style = discord.ButtonStyle.secondary, label = bot["name"]))#, emoji = bot["emoji"]))
         await self.console_channel.send("button?", view = view)
 
