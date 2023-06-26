@@ -36,7 +36,7 @@ class Console:
         self.logger.info("bot is now online")
         self.logger.info("bot started with name: {} and id: {}".format(self.client.user.name, self.client.user.id))
         print(self.client.guilds[0])
-        self.console_channel = discord.utils.get(self.client.guilds.channels, name = "console")
+        self.console_channel = discord.utils.get(self.client.guilds[0].channels, name = "console")
         await self.create_console_msg()
     
     
