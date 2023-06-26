@@ -31,11 +31,11 @@ class Console:
     
     async def command_stop(self, context):
         await self.remove_msg(context.message)
-        await self.stop_server()
-        asleep(5)
+        self.stop_server()
+        await asleep(5)
         sys.exit()
     
-    async def stop_server(self):
+    def stop_server(self):
         TOKEN = self.tokens["DBH_TOKEN"]
         url = self.tokens["DBH_URL"]
         headers = {
