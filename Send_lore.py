@@ -13,7 +13,7 @@ class Send_lore(SubBot):
         super().__init__(client, token)
 
     async def start_bot(self):
-        self.client.add_cog(Send_lore_events(self.client))
+        await self.client.add_cog(Send_lore_events(self.client))
         await super().start_bot()
         
 class Send_lore_events(commands.Cog):
