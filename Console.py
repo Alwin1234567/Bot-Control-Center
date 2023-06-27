@@ -5,10 +5,13 @@ import json
 import logging
 from logger import setup_logger
 from asyncio import sleep as asleep
+from asyncio import create_task
 import sys
 import requests
 from discord.ui import Button, View
 import discord
+from Send_lore import Send_lore
+import discord.ext.commands as dec
 """
 Body
 """
@@ -29,6 +32,9 @@ class Console:
         self.client = client
         self.bots = self.config["Bots"]
         self.console_msg = None
+        self.msg_wait = list()
+        self.bot_classes = dict()
+        self.bot_classes["Send_lore"] = Send_lore(self.get_client(), self.tokens["Send_lore"])
         
     
     async def event_on_ready(self):
@@ -39,12 +45,25 @@ class Console:
     
     
     async def remove_msg(self, msg, delay = 0):
-        if delay > 0: asleep(delay)
+        if delay > 0: 
+            task = create_task(self.delayed_remove_msg(msg, delay))
+            self.msg_wait.append(task)
+            asleep(delay)
+            self.msg_wait.remove(task)
+        else: await msg.delete()
+    
+    async def delayed_remove_msg(self, msg, delay):
+        try: asleep(delay)
+        except: pass
         await msg.delete()
     
     
     async def command_stop(self, context = None):
-        if context != None: await self.remove_msg(context.message)
+        try:
+            for bot in self.bot_classes: await bot.stop_server() # stop all bots
+        except: pass
+        for task in self.msg_wait: task.cancel() # instantly run all pending msg removals
+        if context != None: await self.remove_msg(context.message) # remove console msg
         try:
             if self.console_msg != None: await self.remove_msg(self.console_msg)
         except: pass
@@ -79,13 +98,16 @@ class Console:
         if ID == "stop":
             await self.command_stop()
             return
+        if ID in self.bots.keys() and ID in self.bot_classes.keys():
+            bot = self.bot_classes[ID]
+            if bot.on: await bot.stop_bot()
+            else: 
+                task = create_task(bot.start_bot())
+                bot.task = task
+                
+        
+        
+    def get_client(self): return dec.Bot(command_prefix = self.config["BOT_PREFIX"], intents=discord.Intents.all())
+            
         
 
-
-class MyView(View):
-    def __init__(self):
-      super().__init__()
-      
-    @discord.ui.button(style = discord.ButtonStyle.secondary)
-    async def respond(interaction, button):
-        await interaction.response.send_message(button.label)

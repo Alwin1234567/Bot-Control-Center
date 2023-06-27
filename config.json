@@ -1,14 +1,9 @@
 {
 	"BOT_PREFIX": ["$", "!"],
 	"Bots": {
-		"send_lore": {
-			"name": "send_lore",
-			"emoji": "�"
-		},
-		
-		"test1": {
-			"name": "test1",
-			"emoji": "�"
+		"Send_lore": {
+			"name": "Send_lore",
+			"emoji": "📰"
 		}
 	}
 }
