@@ -34,7 +34,7 @@ class Console:
         self.console_msg = None
         self.msg_wait = list()
         self.bot_classes = dict()
-        self.bot_classes["Send_lore"] = Send_lore(self.get_client(), self.tokens["Send_lore"])
+        # self.bot_classes["Send_lore"] = Send_lore(self.get_client(), self.tokens["Send_lore"])
         
     
     async def event_on_ready(self):
@@ -98,14 +98,22 @@ class Console:
         if ID == "stop":
             await self.command_stop()
             return
-        if ID in self.bots.keys() and ID in self.bot_classes.keys():
-            bot = self.bot_classes[ID]
-            if bot.on: await bot.stop_bot()
-            else: 
-                task = create_task(bot.start_bot())
-                bot.task = task
+        if ID in self.bots.keys():
+            if ID in self.bot_classes.keys(): await self.stop_bot(ID)
+            else: await self.start_bot(ID)
                 
-        
+    
+    async def start_bot(self, name):
+        bot = eval('{0}(self.get_client(), self.tokens["{0}"])'.format(name))
+        self.bot_classes[name] = bot
+        task = create_task(bot.start_bot())
+        bot.task = task
+        return self.bot_classes[name]
+    
+    
+    async def stop_bot(self, name):
+        await self.bot_classes[name].stop_bot()
+        del self.bot_classes[name]
         
     def get_client(self): return dec.Bot(command_prefix = self.config["BOT_PREFIX"], intents=discord.Intents.all())
             
