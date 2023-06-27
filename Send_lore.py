@@ -9,12 +9,12 @@ Body
 
 class Send_lore(SubBot):
     
-    async def __init__(self, client, token):
+    def __init__(self, client, token):
         super().__init__(client, token)
-        await self.client.add_cog(Send_lore_events(self.client))
 
-    
-    
+    async def start_bot(self):
+        self.client.add_cog(Send_lore_events(self.client))
+        super().start_bot()
         
 class Send_lore_events(commands.Cog):
     def __init__(self, client):
