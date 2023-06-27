@@ -14,7 +14,7 @@ class Send_lore(SubBot):
 
     async def start_bot(self):
         self.client.add_cog(Send_lore_events(self.client))
-        super().start_bot()
+        await super().start_bot()
         
 class Send_lore_events(commands.Cog):
     def __init__(self, client):
