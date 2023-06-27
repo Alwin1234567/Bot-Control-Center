@@ -11,7 +11,7 @@ class Send_lore(SubBot):
     
     def __init__(self, client, token):
         super().__init__(client, token)
-        self.client.add_cog(Send_lore_events(self.client))
+        await self.client.add_cog(Send_lore_events(self.client))
 
     
     
