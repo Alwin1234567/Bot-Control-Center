@@ -15,6 +15,7 @@ class Send_lore(SubBot):
     async def start_bot(self):
         await self.client.add_cog(Send_lore_events(self.client))
         await super().start_bot()
+        await self.stop_bot()
         
 class Send_lore_events(commands.Cog):
     def __init__(self, client):
@@ -28,4 +29,3 @@ class Send_lore_events(commands.Cog):
             last_message_content=message.content
             await message.delete()
             await self.client.get_channel(self.output).send(last_message_content)
-        await self.stop_bot()
