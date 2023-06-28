@@ -15,9 +15,9 @@ class Send_lore(SubBot):
         super().__init__(client, token)
 
     async def start_bot(self):
-        await self.client.add_cog(Send_lore_events(self.client))
+        self.cog = await self.client.add_cog(Send_lore_events(self.client))
         await super().start_bot()
-        self.cog = await self.client.get_cog("Send_lore_events")
+        # self.cog = await self.client.get_cog("Send_lore_events")
     
     
     async def trigger(self): 
