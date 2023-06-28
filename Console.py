@@ -120,7 +120,7 @@ class Console:
             else:
                 await self.start_bot(ID)
                 await self.bot_classes[ID].trigger()
-        if ID in self.bots.keys():
+        elif ID in self.bots.keys():
             if ID in self.bot_classes.keys(): await self.stop_bot(ID)
             else: await self.start_bot(ID)
                 
