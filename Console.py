@@ -34,14 +34,16 @@ class Console:
         self.console_msg = None
         self.msg_wait = list()
         self.bot_classes = dict()
-        # self.bot_classes["Send_lore"] = Send_lore(self.get_client(), self.tokens["Send_lore"])
+        
         
     
     async def event_on_ready(self):
         self.logger.info("bot is now online")
         self.logger.info("bot started with name: {} and id: {}".format(self.client.user.name, self.client.user.id))
         self.console_channel = discord.utils.get(self.client.guilds[0].channels, name = "console")
+        self.status_category = discord.utils.get(self.client.guilds[0].categories, name = "STATUS")
         await self.create_console_msg()
+        await self.create_status()
     
     
     async def remove_msg(self, msg, delay = 0):
@@ -108,14 +110,19 @@ class Console:
         self.bot_classes[name] = bot
         task = create_task(bot.start_bot())
         bot.task = task
+        await self.client.get_channel(self.bots[name]["status_channel_id"]).edit(name = "{} 🟢".format(name))
         return self.bot_classes[name]
     
     
     async def stop_bot(self, name):
         await self.bot_classes[name].stop_bot()
         del self.bot_classes[name]
+        await self.client.get_channel(self.bots[name]["status_channel_id"]).edit(name = "{} 🔴".format(name))
         
     def get_client(self): return dec.Bot(command_prefix = self.config["BOT_PREFIX"], intents=discord.Intents.all())
             
-        
+    async def create_status(self):
+        for key in self.bots.keys():
+            status = await self.status_category.create_voice_channel("{} 🔴".format(key))
+            self.bots[key]["status_channel_id"] = status.id
 
