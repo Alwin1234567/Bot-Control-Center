@@ -43,6 +43,8 @@ class Console:
         self.console_channel = discord.utils.get(self.client.guilds[0].channels, name = "console")
         self.status_category = discord.utils.get(self.client.guilds[0].categories, name = "Status")
         await self.create_status()
+        for bot in self.bots.values():
+            if bot["start on launch"]: await self.start_bot(bot["name"])
         await self.create_console_msg() #end of on_ready due to infinite loop
     
     
@@ -60,7 +62,7 @@ class Console:
         await msg.delete()
     
     
-    async def command_stop(self, context = None):
+    async def command_stop(self, context = None, restart = False):
         try:
             for bot in self.bot_classes: await bot.stop_server() # stop all bots
         except: pass
@@ -72,11 +74,11 @@ class Console:
         try:
             if self.console_msg != None: await self.remove_msg(self.console_msg)
         except: pass
-        self.stop_server()
+        self.stop_server(restart = restart)
         await asleep(1)
         sys.exit()
     
-    def stop_server(self):
+    def stop_server(self, restart = False):
         TOKEN = self.tokens["DBH_TOKEN"]
         url = self.tokens["DBH_URL"]
         headers = {
@@ -84,7 +86,8 @@ class Console:
             'Content-Type': 'application/json',
             'Accept': 'Application/vnd.pterodactyl.v1+json'
         }
-        data = '{ "signal": "kill" }'
+        if restart: data = '{ "signal": "restart" }'
+        else: data = '{ "signal": "kill" }'
         requests.post(url, headers=headers, data=data)
         
     
@@ -92,16 +95,23 @@ class Console:
         view = View()
         for bot in self.bots.values():
             view.add_item(Button(style = discord.ButtonStyle.primary, label = bot["name"], custom_id = bot["name"]))#, emoji = bot["emoji"]))
+        view.add_item(Button(style = discord.ButtonStyle.danger, label = "restart", custom_id = "restart", emoji = "🔄"))
         view.add_item(Button(style = discord.ButtonStyle.danger, label = "stop", custom_id = "stop", emoji = "⛔"))
         self.console_msg = await self.console_channel.send("button?", view = view)
         while True:
             interaction = await self.client.wait_for("interaction", check=lambda interaction: interaction.data["component_type"] == 2 and interaction.channel == self.console_channel)
-            await self.button_trigger(interaction.data["custom_id"])
             await interaction.response.defer()
+            try:
+                await self.button_trigger(interaction.data["custom_id"])
+            except: pass
+            
 
     async def button_trigger(self, ID):
         if ID == "stop":
             await self.command_stop()
+            return
+        if ID == "restart":
+            await self.command_stop(restart = True)
             return
         if ID in self.bots.keys():
             if ID in self.bot_classes.keys(): await self.stop_bot(ID)
@@ -114,13 +124,13 @@ class Console:
         task = create_task(bot.start_bot())
         bot.task = task
         await self.client.get_channel(self.bots[name]["status_channel_id"]).edit(name = "{} 🟢".format(name))
-        return self.bot_classes[name]
     
     
-    async def stop_bot(self, name):
+    async def stop_bot(self, name):        
         await self.bot_classes[name].stop_bot()
         del self.bot_classes[name]
         await self.client.get_channel(self.bots[name]["status_channel_id"]).edit(name = "{} 🔴".format(name))
+        
         
     def get_client(self): return dec.Bot(command_prefix = self.config["BOT_PREFIX"], intents=discord.Intents.all())
             
@@ -128,4 +138,4 @@ class Console:
         for key in self.bots.keys():
             status = await self.status_category.create_voice_channel("{} 🔴".format(key))
             self.bots[key]["status_channel_id"] = status.id
-
+        

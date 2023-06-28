@@ -18,6 +18,9 @@ async def on_ready(): await console.event_on_ready()
 
 @client.command(brief = "stops all bots", description = "will try to stop all bots, if they don't comply, will force quit in 1 minute")
 async def stop(context): await console.command_stop(context = context)
+
+@client.command(brief = "stops all bots and starts from default", description = "will try to stop all bots, if they don't comply, will force quit in 1 minute. After wil start Bot Control Center again.")
+async def restart(context): await console.command_stop(context = context, restart = True)
     
 
 
