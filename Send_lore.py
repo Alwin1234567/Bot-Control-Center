@@ -21,9 +21,10 @@ class Send_lore(SubBot):
     
     
     async def trigger(self): 
-        print(1)
-        print(self.client.cogs)
-        await self.cog.send_message()
+        print(self.client.cogs["Send_lore_events"])
+        await self.client.cogs["Send_lore_events"].send_message()
+        # await self.cog.send_message()
+        
         
 class Send_lore_events(commands.Cog):
     def __init__(self, client):
