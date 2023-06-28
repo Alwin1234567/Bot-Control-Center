@@ -94,12 +94,13 @@ class Console:
     async def create_console_msg(self):
         view = View()
         for bot in self.bots.values():
-            view.add_item(Button(style = discord.ButtonStyle.primary, label = bot["name"], custom_id = bot["name"]))#, emoji = bot["emoji"]))
+            view.add_item(Button(style = discord.ButtonStyle.primary, label = bot["name"], custom_id = bot["name"], emoji = "⚡"))
+            if bot["trigger"]: view.add_item(Button(style = discord.ButtonStyle.success, label = bot["name"], custom_id = "{} trigger".format(bot["name"]), emoji = "▶️"))
         view.add_item(Button(style = discord.ButtonStyle.danger, label = "restart", custom_id = "restart", emoji = "🔄"))
         view.add_item(Button(style = discord.ButtonStyle.danger, label = "stop", custom_id = "stop", emoji = "⛔"))
-        self.console_msg = await self.console_channel.send("button?", view = view)
+        self.console_msg = await self.console_channel.send("Console", view = view)
         while True:
-            interaction = await self.client.wait_for("interaction", check=lambda interaction: interaction.data["component_type"] == 2 and interaction.channel == self.console_channel)
+            interaction = await self.client.wait_for("interaction", check = lambda interaction: interaction.data["component_type"] == 2 and interaction.channel == self.console_channel)
             await interaction.response.defer()
             try:
                 await self.button_trigger(interaction.data["custom_id"])
@@ -113,6 +114,12 @@ class Console:
         if ID == "restart":
             await self.command_stop(restart = True)
             return
+        if "trigger" in ID:
+            ID = ID.replace(" trigger", "")
+            if ID in self.bot_classes.keys(): await self.bot_classes[ID].trigger()
+            else:
+                await self.start_bot(ID)
+                await self.bot_classes[ID].trigger()
         if ID in self.bots.keys():
             if ID in self.bot_classes.keys(): await self.stop_bot(ID)
             else: await self.start_bot(ID)

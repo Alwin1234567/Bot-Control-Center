@@ -3,8 +3,8 @@
 	"Bots": {
 		"Send_lore": {
 			"name": "Send_lore",
-			"emoji": "📰",
-			"start on launch": true
+			"start on launch": true,
+			"trigger": true
 		}
 	}
 }
