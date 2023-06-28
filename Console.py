@@ -41,9 +41,9 @@ class Console:
         self.logger.info("bot is now online")
         self.logger.info("bot started with name: {} and id: {}".format(self.client.user.name, self.client.user.id))
         self.console_channel = discord.utils.get(self.client.guilds[0].channels, name = "console")
-        self.status_category = discord.utils.get(self.client.guilds[0].categories, name = "STATUS")
-        await self.create_console_msg()
+        self.status_category = discord.utils.get(self.client.guilds[0].categories, name = "Status")
         await self.create_status()
+        await self.create_console_msg() #end of on_ready due to infinite loop
     
     
     async def remove_msg(self, msg, delay = 0):
@@ -63,6 +63,9 @@ class Console:
     async def command_stop(self, context = None):
         try:
             for bot in self.bot_classes: await bot.stop_server() # stop all bots
+        except: pass
+        try:
+            for bot in self.bots.values(): await self.client.get_channel(bot["status_channel_id"]).delete()
         except: pass
         for task in self.msg_wait: task.cancel() # instantly run all pending msg removals
         if context != None: await self.remove_msg(context.message) # remove console msg
@@ -122,7 +125,6 @@ class Console:
     def get_client(self): return dec.Bot(command_prefix = self.config["BOT_PREFIX"], intents=discord.Intents.all())
             
     async def create_status(self):
-        print("hier")
         for key in self.bots.keys():
             status = await self.status_category.create_voice_channel("{} 🔴".format(key))
             self.bots[key]["status_channel_id"] = status.id
