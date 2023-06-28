@@ -7,7 +7,7 @@ import datetime
 """
 Body
 """
-time = datetime(hour = 15)
+time = datetime.time(hour = 15)
 
 class Send_lore(SubBot):
     
