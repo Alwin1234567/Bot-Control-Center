@@ -122,6 +122,7 @@ class Console:
     def get_client(self): return dec.Bot(command_prefix = self.config["BOT_PREFIX"], intents=discord.Intents.all())
             
     async def create_status(self):
+        print("hier")
         for key in self.bots.keys():
             status = await self.status_category.create_voice_channel("{} 🔴".format(key))
             self.bots[key]["status_channel_id"] = status.id
