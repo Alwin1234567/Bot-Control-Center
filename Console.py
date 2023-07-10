@@ -98,7 +98,7 @@ class Console:
             if bot["trigger"]: view.add_item(Button(style = discord.ButtonStyle.success, label = bot["name"], custom_id = "{} trigger".format(bot["name"]), emoji = "▶️"))
         view.add_item(Button(style = discord.ButtonStyle.danger, label = "restart", custom_id = "restart", emoji = "🔄"))
         view.add_item(Button(style = discord.ButtonStyle.danger, label = "stop", custom_id = "stop", emoji = "⛔"))
-        self.console_msg = await self.console_channel.send("Console", view = view)
+        self.console_msg = await self.console_channel.send("", view = view)
         while True:
             interaction = await self.client.wait_for("interaction", check = lambda interaction: interaction.data["component_type"] == 2 and interaction.channel == self.console_channel)
             await interaction.response.defer()

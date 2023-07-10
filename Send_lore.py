@@ -24,8 +24,8 @@ class Send_lore(SubBot):
         
 class Send_lore_events(commands.Cog):
     def __init__(self, client):
-        self.input = 1123226096763142144
-        self.output = 1123226125569634355
+        self.input = 1127919086446313572
+        self.output = 1127918615954456626
         self.client = client
         self.trigger = False
     
